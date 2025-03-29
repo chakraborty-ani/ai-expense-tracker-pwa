@@ -1,0 +1,31 @@
+{
+	"name": "AI Expense Tracker",
+	"short_name": "Expense Tracker",
+	"theme_color": "#35155D",
+	"background_color": "#ffffff",
+	"display": "standalone",
+	"orientation": "portrait",
+	"scope": "/",
+	"start_url": "/",
+	"icons": [
+		{
+			"src": "images/manifest/icons-192.png",
+			"type": "image/png",
+			"sizes": "192x192",
+			"purpose": "maskable any"
+		},
+		{
+			"src": "images/manifest/icons-256.png",
+			"type": "image/png",
+			"sizes": "256x256",
+			"purpose": "maskable any"
+		},
+		{
+			"src": "images/manifest/icons-512.png",
+			"type": "image/png",
+			"sizes": "512x512",
+			"purpose": "maskable any"
+		}
+	],
+	"splash_pages": null
+}
