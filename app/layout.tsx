@@ -1,5 +1,6 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import { ThemeProvider } from "@/components/layout/theme-provider"
 import "./globals.css"
 
 const geistSans = Geist({
@@ -12,34 +13,35 @@ const geistMono = Geist_Mono({
 	subsets: ["latin"],
 })
 
+export const viewport: Viewport = {
+	width: "device-width",
+	initialScale: 1,
+	minimumScale: 1,
+	viewportFit: "cover",
+}
+
+export const themeColor = [{ media: "(prefers-color-scheme: dark)", color: "#fff" }]
+
 export const metadata: Metadata = {
 	title: "AI Expense Tracker",
 	description: "An AI-powered expense tracking PWA for effortless financial management.",
 	generator: "Next.js",
 	manifest: "/manifest.json",
 	keywords: ["expense tracker", "AI expense tracker", "finance", "budgeting", "PWA", "Next.js"],
-	themeColor: [{ media: "(prefers-color-scheme: dark)", color: "#fff" }],
-	// authors: [
-	// 	{
-	// 		name: "imvinojanv",
-	// 		url: "https://www.linkedin.com/in/imvinojanv/",
-	// 	},
-	// ],
-	viewport: "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover",
 	icons: [
 		{ rel: "apple-touch-icon", url: "images/manifest/icon-128x128.png" },
 		{ rel: "icon", url: "images/manifest/icon-128x128.png" },
 	],
 }
 
-export default function RootLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
-		<html lang="en">
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+		<html lang="en" suppressHydrationWarning>
+			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+					{children}
+				</ThemeProvider>
+			</body>
 		</html>
 	)
 }
