@@ -33,26 +33,31 @@ const data = {
 			title: "Dashboard",
 			url: "#",
 			icon: IconDashboard,
+			active: true,
 		},
 		{
 			title: "Chat",
 			url: "#",
 			icon: IconMessage,
+			active: false,
 		},
 		{
 			title: "Transactions",
 			url: "#",
 			icon: IconLogs,
+			active: false,
 		},
 		{
 			title: "Analytics",
 			url: "#",
 			icon: IconChartLine,
+			active: false,
 		},
 		{
 			title: "Budget",
 			url: "#",
 			icon: IconAdjustments,
+			active: false,
 		},
 	],
 }
