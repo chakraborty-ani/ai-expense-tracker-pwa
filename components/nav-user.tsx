@@ -1,14 +1,13 @@
 "use client"
 
 import {
-	IconCreditCard,
 	IconDotsVertical,
 	IconLogout,
-	IconNotification,
-	IconUserCircle,
 	IconSettings,
+	IconUserCircle
 } from "@tabler/icons-react"
 
+// COMPONENTS
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
 	DropdownMenu,
@@ -20,6 +19,9 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar"
+
+// UTILS
+import { signOutCurrentUser } from "@/lib/firebase/firebase-config"
 
 export function NavUser({
 	user,
@@ -84,7 +86,7 @@ export function NavUser({
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem>
+						<DropdownMenuItem onClick={() => signOutCurrentUser()}>
 							<IconLogout />
 							Log out
 						</DropdownMenuItem>
