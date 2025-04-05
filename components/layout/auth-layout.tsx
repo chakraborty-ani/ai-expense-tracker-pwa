@@ -30,7 +30,7 @@ export const AuthLayout = ({ children }: { children: React.ReactNode }) => {
 	const [isAuthChecked, setIsAuthChecked] = useState(false)
 
 	// REDUX STATES
-	const { currentUserToken, currentUserDetails, userDataloading } = useAppSelector(
+	const { currentUserToken, userDataloading } = useAppSelector(
 		(state: RootState) => state.user
 	)
 
@@ -49,7 +49,7 @@ export const AuthLayout = ({ children }: { children: React.ReactNode }) => {
 		})
 
 		return () => unsubscribe()
-	}, [])
+	}, [dispatch, pathname, router])
 
 	useEffect(() => {
 		if (isAuthChecked) {
@@ -73,7 +73,7 @@ export const AuthLayout = ({ children }: { children: React.ReactNode }) => {
 				dispatch(updateLoading(false))
 			})()
 		}
-	}, [currentUserToken, isAuthChecked])
+	}, [currentUserToken, isAuthChecked, dispatch, pathname, router])
 
 	if (
 		!isAuthChecked ||
