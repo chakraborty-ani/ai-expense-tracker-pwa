@@ -1,7 +1,12 @@
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
-import { ThemeProvider } from "@/components/layout/theme-provider"
 import "./globals.css"
+
+// COMPONENTS
+import { ThemeProvider } from "@/components/layout/theme-provider"
+import { AuthLayout } from "@/components/layout/auth-layout"
+import { ReduxProvider } from "@/components/layout/redux-provider"
+import { MainLayout } from "@/components/layout/main-layout"
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -39,7 +44,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 		<html lang="en" suppressHydrationWarning>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-					{children}
+					<ReduxProvider>
+						<AuthLayout>
+							<MainLayout>{children}</MainLayout>
+						</AuthLayout>
+					</ReduxProvider>
 				</ThemeProvider>
 			</body>
 		</html>
