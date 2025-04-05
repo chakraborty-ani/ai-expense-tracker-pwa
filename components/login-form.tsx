@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 
 // UTILS
-import { firebaseLoginWithEmailPassword } from "@/lib/firebase/firebase-login"
+import { firebaseLoginWithEmailPassword, firebaseLoginWithGoogle } from "@/lib/firebase/firebase-login"
 import { cn } from "@/lib/utils"
 
 // FORM VALIDATION SCHEMA
@@ -34,6 +34,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 
 	// STATES
 	const [isLoading, setIsLoading] = useState(false)
+	const [isLoadingGoogle, setIsLoadingGoogle] = useState(false)
 
 	// FORM INITIALIZATION
 	const form = useForm<z.infer<typeof LOGIN_FORM_SCEHMA>>({
@@ -62,6 +63,24 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 		}
 
 		setIsLoading(false)
+	}
+
+	// GOOGLE LOGIN HANDLER
+	const handleGoogleLogin = async () => {
+		setIsLoadingGoogle(true)
+
+		try {
+			// Register with Firebase
+			const firebaseResponse = await firebaseLoginWithGoogle()
+
+			if (firebaseResponse) {
+				router.push("/")
+			}
+		} catch (error) {
+			console.error("Google Login Error:", error)
+		}
+
+		setIsLoadingGoogle(false)
 	}
 
 	return (
@@ -115,33 +134,37 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 								</div>
 
 								{/* BUTTONS */}
-								<div className="flex flex-col gap-3">
-									<Button type="submit" className="w-full cursor-pointer">
-										{isLoading ? "Logging in..." : "Login"}
-									</Button>
-									<div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-										<span className="relative z-10 bg-card px-2 text-muted-foreground">
-											Or
-										</span>
-									</div>
-									<Button variant="outline" className="w-full cursor-pointer">
-										Login with Google
-									</Button>
-								</div>
-							</div>
-
-							{/* REDIRECT TO SIGN UP */}
-							<div className="mt-4 text-center text-sm">
-								Don&apos;t have an account?{" "}
-								<span
-									className="underline underline-offset-4 cursor-pointer"
-									onClick={() => router.push("/register")}
-								>
-									Sign up
-								</span>
+								<Button type="submit" className="w-full cursor-pointer">
+									{isLoading ? "Logging in..." : "Login"}
+								</Button>
 							</div>
 						</form>
 					</Form>
+
+					{/* GOOGLE LOGIN BUTTON */}
+					<div className="flex flex-col gap-3 mt-3">
+						<div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+							<span className="relative z-10 bg-card px-2 text-muted-foreground">Or</span>
+						</div>
+						<Button
+							variant="outline"
+							className="w-full cursor-pointer"
+							onClick={() => handleGoogleLogin()}
+						>
+							{isLoadingGoogle ? "Logging in..." : "Login with Google"}
+						</Button>
+					</div>
+
+					{/* REDIRECT TO SIGN UP */}
+					<div className="mt-4 text-center text-sm">
+						Don&apos;t have an account?{" "}
+						<span
+							className="underline underline-offset-4 cursor-pointer"
+							onClick={() => router.push("/register")}
+						>
+							Sign up
+						</span>
+					</div>
 				</CardContent>
 			</Card>
 		</div>

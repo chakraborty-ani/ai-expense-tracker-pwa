@@ -39,10 +39,10 @@ export function NavUser() {
 							</Avatar>
 							<div className="grid flex-1 text-left text-sm leading-tight">
 								<span className="truncate font-medium">
-									{currentUserDetails.firstname} {currentUserDetails.lastname}
+									{currentUserDetails?.firstname} {currentUserDetails?.lastname}
 								</span>
 								<span className="text-muted-foreground truncate text-xs">
-									{currentUserDetails.email}
+									{currentUserDetails?.email}
 								</span>
 							</div>
 							<IconDotsVertical className="ml-auto size-4" />
@@ -61,10 +61,10 @@ export function NavUser() {
 								</Avatar>
 								<div className="grid flex-1 text-left text-sm leading-tight">
 									<span className="truncate font-medium">
-										{currentUserDetails.firstname} {currentUserDetails.lastname}
+										{currentUserDetails?.firstname} {currentUserDetails?.lastname}
 									</span>
 									<span className="text-muted-foreground truncate text-xs">
-										{currentUserDetails.email}
+										{currentUserDetails?.email}
 									</span>
 								</div>
 							</div>

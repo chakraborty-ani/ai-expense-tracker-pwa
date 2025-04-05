@@ -1,12 +1,28 @@
 import { FirebaseError } from "firebase/app"
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth"
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth"
 import { auth } from "./firebase-config"
 
+// TYPES
 type FirebaseWithEmailPasswordProps = {
 	email: string
 	password: string
 }
 
+// FUNCTION -> GENERATE ERROR MESSAGE
+const generateErrorMessage = (error: FirebaseError) => {
+	switch (error.code) {
+		case "auth/user-not-found":
+			return "User not found"
+		case "auth/invalid-credential":
+			return "Invalid credential"
+		case "auth/too-many-requests":
+			return "Too many requests"
+		default:
+			return "An unexpected error occurred"
+	}
+}
+
+// FUNCTIONS -> AUTHENTICATION WITH EMAIL AND PASSWORD (LOGIN)
 export const firebaseLoginWithEmailPassword = async ({ email, password }: FirebaseWithEmailPasswordProps) => {
 	try {
 		const userCredential = await signInWithEmailAndPassword(auth, email, password)
@@ -15,27 +31,14 @@ export const firebaseLoginWithEmailPassword = async ({ email, password }: Fireba
 	} catch (error) {
 		if (error instanceof FirebaseError) {
 			console.log("error code: ", error.code)
-			// Handle specific Firebase errors
-			switch (error.code) {
-				case "auth/user-not-found":
-					console.log("Login error: User not found")
-					break
-				case "auth/invalid-credential":
-					console.log("Login error: Invalid credential")
-					break
-				case "auth/too-many-requests":
-					console.log("Login error: Too many requests")
-					break
-				default:
-					console.log("Login error: An unexpected error occurred", error.message)
-			}
+			console.log("Login error:", generateErrorMessage(error))
 		} else {
-			// Handle non-Firebase errors
 			console.log("Unexpected error:", error)
 		}
 	}
 }
 
+// FUNCTIONS -> AUTHENTICATION WITH EMAIL AND PASSWORD (REGISTER)
 export const firebaseRegisterWithEmailPassword = async ({
 	email,
 	password,
@@ -47,22 +50,27 @@ export const firebaseRegisterWithEmailPassword = async ({
 	} catch (error) {
 		if (error instanceof FirebaseError) {
 			console.log("error code: ", error.code)
-			// Handle specific Firebase errors
-			switch (error.code) {
-				case "auth/user-not-found":
-					console.log("Login error: User not found")
-					break
-				case "auth/invalid-credential":
-					console.log("Login error: Invalid credential")
-					break
-				case "auth/too-many-requests":
-					console.log("Login error: Too many requests")
-					break
-				default:
-					console.log("Login error: An unexpected error occurred", error.message)
-			}
+		
+			console.log("Login error:", generateErrorMessage(error))
 		} else {
-			// Handle non-Firebase errors
+			console.log("Unexpected error:", error)
+		}
+	}
+}
+
+// FUNCTIONS -> AUTHENTICATION WITH GOOGLE
+export const firebaseLoginWithGoogle = async () => {
+	try {
+		const provider = new GoogleAuthProvider()
+		const result = await signInWithPopup(auth, provider)
+		const user = result.user
+		return user
+	} catch (error) {
+		if (error instanceof FirebaseError) {
+			console.log("error code: ", error.code)
+		
+			console.log("Login error:", generateErrorMessage(error))
+		} else {
 			console.log("Unexpected error:", error)
 		}
 	}
