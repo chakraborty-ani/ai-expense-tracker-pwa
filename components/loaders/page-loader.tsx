@@ -1,14 +1,17 @@
-import { SpinnerCircularFixed } from "spinners-react"
+import FadeLoader from "react-spinners/FadeLoader"
 
 const PageLoader = () => {
 	return (
 		<div className="flex h-screen w-screen items-center justify-center bg-background">
-			<SpinnerCircularFixed
-				size={50}
-				thickness={180}
-				speed={100}
-				color="var(--foreground)"
-				secondaryColor="var(--card)"
+			<FadeLoader
+				color={"var(--foreground)"}
+				loading={true}
+				height={15}
+				width={5}
+				radius={2}
+				margin={2}
+				aria-label="Loading Spinner"
+				data-testid="loader"
 			/>
 		</div>
 	)
