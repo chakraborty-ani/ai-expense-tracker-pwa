@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
+import { Toaster } from "@/components/ui/sonner"
 
 // COMPONENTS
 import { ThemeProvider } from "@/components/layout/theme-provider"
@@ -46,7 +47,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
 					<ReduxProvider>
 						<AuthLayout>
-							<MainLayout>{children}</MainLayout>
+							<MainLayout>
+								{children}
+								<Toaster richColors />
+							</MainLayout>
 						</AuthLayout>
 					</ReduxProvider>
 				</ThemeProvider>

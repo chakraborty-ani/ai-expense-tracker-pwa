@@ -29,21 +29,28 @@ export const useSocket = (options?: UseSocketOptions) => {
 
     // CONNECT TO SOCKET
 	useEffect(() => {
+		if (!currentUserToken) return
+
 		const connectSocket = async () => {
 			const socket: Socket<SocketEvents> = io(SOCKET_URL, {
-				auth: { token: currentUserToken },
 				transports: ["websocket"],
+				auth: { token: currentUserToken },
 			})
 
 			socketRef.current = socket
 
-			socket.on("connect", () => setIsConnected(true))
-			socket.on("disconnect", () => setIsConnected(false))
+			// SOCKET CONNECT
+			socket.on("connect", () => {
+				setIsConnected(true)
+				// console.log("Connected to socket server")
+			})
 
+			// SOCKET EXPENSE ADDED
 			if (options?.onExpenseAdded) {
 				socket.on("expenseAdded", options.onExpenseAdded)
 			}
 
+			// SOCKET ERROR
 			if (options?.onError) {
 				socket.on("error", options.onError)
 			}
