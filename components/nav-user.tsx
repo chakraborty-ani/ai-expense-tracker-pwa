@@ -3,7 +3,7 @@
 import { IconDotsVertical, IconLogout, IconSettings, IconUserCircle } from "@tabler/icons-react"
 
 // COMPONENTS
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -16,8 +16,8 @@ import {
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar"
 
 // UTILS
-import { signOutCurrentUser } from "@/lib/firebase/firebase-config"
 import { useAppSelector } from "@/hooks/redux-hooks"
+import { signOutCurrentUser } from "@/lib/firebase/firebase-config"
 
 export function NavUser() {
 	const { isMobile } = useSidebar()
