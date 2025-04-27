@@ -26,13 +26,14 @@ export function NavMain({
 	return (
 		<SidebarGroup>
 			<SidebarGroupContent className="flex flex-col gap-2">
-				<SidebarMenu>
+				<SidebarMenu >
 					{items.map(item => (
 						<SidebarMenuItem key={item.title}>
 							<SidebarMenuButton
 								tooltip={item.title}
 								isActive={item.url === "/" ? pathname === "/" : pathname.startsWith(item.url)}
 								onClick={() => router.push(item.url)}
+								className="cursor-pointer"
 							>
 								{item.icon && <item.icon />}
 								<span>{item.title}</span>

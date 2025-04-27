@@ -35,8 +35,8 @@ const data = {
 			icon: IconMessage,
 		},
 		{
-			title: "Transactions",
-			url: "#",
+			title: "Expenses",
+			url: "/expenses",
 			icon: IconLogs,
 		},
 		{
