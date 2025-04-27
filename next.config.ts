@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
 	compiler: {
 		removeConsole: process.env.NODE_ENV !== "development",
 	},
+	output: "standalone"
 }
 
 export default withPWA({

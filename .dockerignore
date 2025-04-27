@@ -1,0 +1,37 @@
+# Ignore node_modules - will be installed inside container
+node_modules
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Ignore build output
+.next
+out
+
+# Ignore local env files (handled separately)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore Vercel/Netlify-specific files (if any)
+.vercel
+.netlify
+
+# Ignore OS/system files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Editor folders and files
+.vscode
+.idea
+*.swp
+
+# Others (optional)
+coverage
+*.log
