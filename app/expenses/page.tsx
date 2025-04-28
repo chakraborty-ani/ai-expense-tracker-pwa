@@ -73,9 +73,7 @@ const ExpensesPage = () => {
 		}
 	}, [currentUserDetails?.id, currentPage, itemsPerPage, getAllExpenses])
 
-	return loading ? (
-		<SectionLoader />
-	) : (
+	return (
 		<div className="px-6 py-6">
 			{/* HEADER */}
 			<div className="mb-8">
@@ -86,16 +84,22 @@ const ExpensesPage = () => {
 			</div>
 
 			{/* EXPENSES TABLE */}
-			<DataTable
-				columns={columns}
-				data={expenses}
-				currentPage={currentPage}
-				setCurrentPage={setCurrentPage}
-				itemsPerPage={itemsPerPage}
-				setItemsPerPage={setItemsPerPage}
-				totalItems={totalItems}
-				totalPages={totalPages}
-			/>
+			{loading ? (
+				<div className="flex items-center justify-center w-full h-[calc(100vh-250px)]">
+					<SectionLoader />
+				</div>
+			) : (
+				<DataTable
+					columns={columns(() => getAllExpenses({ page: currentPage, limit: itemsPerPage }))}
+					data={expenses}
+					currentPage={currentPage}
+					setCurrentPage={setCurrentPage}
+					itemsPerPage={itemsPerPage}
+					setItemsPerPage={setItemsPerPage}
+					totalItems={totalItems}
+					totalPages={totalPages}
+				/>
+			)}
 		</div>
 	)
 }
