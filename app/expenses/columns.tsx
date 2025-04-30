@@ -41,8 +41,8 @@ export const columns = (refetchExpenses: () => Promise<void>): ColumnDef<Expense
 	{
 		id: "actions",
 		cell: ({ row }) => {
-			const expenseId = row.original.id
-			return <ActionButtons expenseId={expenseId} refetchExpenses={refetchExpenses} />
+			const expense = row.original
+			return <ActionButtons expense={expense} refetchExpenses={refetchExpenses} />
 		},
 	},
 ]
