@@ -11,13 +11,21 @@ import { DataTable } from "./data-table"
 
 // APIS
 import getAllExpensesByUserId from "@/api/get/get-all-expenses-by-user-id"
+import getExpensesCategories from "@/api/get/get-expenses-categories"
 
 // TYPES
 import type { ExpensesData } from "./expenses-types"
+import CategoryFilter from "./category-filter"
 
 type ExpenseApiParams = {
 	page: number
 	limit: number
+	categoryId?: string
+}
+
+type Category = {
+	label: string
+	value: string
 }
 
 const ExpensesPage = () => {
@@ -27,20 +35,23 @@ const ExpensesPage = () => {
 	// STATE
 	const [loading, setLoading] = useState<boolean>(true)
 	const [expenses, setExpenses] = useState<ExpensesData>([])
+	const [loadingCategories, setLoadingCategories] = useState<boolean>(true)
+	const [categories, setCategories] = useState<Category[]>([])
 	const [currentPage, setCurrentPage] = useState<number>(1)
 	const [itemsPerPage, setItemsPerPage] = useState<number>(10)
 	const [totalItems, setTotalItems] = useState<number>(0)
 	const [totalPages, setTotalPages] = useState<number>(0)
+	const [selectedCategory, setSelectedCategory] = useState<string>("")
 
 	// FUNCTION --> GET ALL EXPENSES BY USER ID
 	const getAllExpenses = useCallback(
-		async ({ page, limit }: ExpenseApiParams) => {
+		async ({ page, limit, categoryId }: ExpenseApiParams) => {
 			try {
 				setLoading(true)
 
 				const res = await getAllExpensesByUserId({
 					userId: currentUserDetails?.id,
-					params: { page, limit },
+					params: { page, limit, categoryId },
 				})
 
 				if (res.status === 200) {
@@ -66,12 +77,48 @@ const ExpensesPage = () => {
 		[currentUserDetails?.id]
 	)
 
+	// FUNCTION --> GET EXPENSES CATEGORIES
+	const fetchExpensesCategories = useCallback(async () => {
+		try {
+			setLoadingCategories(true)
+
+			const res = await getExpensesCategories()
+
+			if (res.status === 200) {
+				setCategories(
+					res.data?.data.map((item: Record<string, string>) => ({
+						label: item.name,
+						value: item.id,
+					})) || []
+				)
+			} else {
+				toast.error("Something went wrong!", {
+					description: res.data?.message,
+				})
+			}
+		} catch (error) {
+			console.error(error)
+			toast.error("Something went wrong!", {
+				description: "Failed to fetch categories",
+			})
+		} finally {
+			setLoadingCategories(false)
+		}
+	}, [])
+
 	// FETCH EXPENSES WHENEVER PAGE, LIMIT, OR USER CHANGES
 	useEffect(() => {
 		if (currentUserDetails?.id) {
-			getAllExpenses({ page: currentPage, limit: itemsPerPage })
+			getAllExpenses({ page: currentPage, limit: itemsPerPage, categoryId: selectedCategory })
 		}
-	}, [currentUserDetails?.id, currentPage, itemsPerPage, getAllExpenses])
+	}, [currentUserDetails?.id, currentPage, itemsPerPage, selectedCategory, getAllExpenses])
+
+	// FETCH EXPENSES CATEGORIES WHENEVER USER CHANGES
+	useEffect(() => {
+		if (currentUserDetails?.id) {
+			fetchExpensesCategories()
+		}
+	}, [currentUserDetails?.id, fetchExpensesCategories])
 
 	return (
 		<div className="px-6 py-6">
@@ -84,21 +131,31 @@ const ExpensesPage = () => {
 			</div>
 
 			{/* EXPENSES TABLE */}
-			{loading ? (
+			{loading || loadingCategories ? (
 				<div className="flex items-center justify-center w-full h-[calc(100vh-250px)]">
 					<SectionLoader />
 				</div>
 			) : (
-				<DataTable
-					columns={columns(() => getAllExpenses({ page: currentPage, limit: itemsPerPage }))}
-					data={expenses}
-					currentPage={currentPage}
-					setCurrentPage={setCurrentPage}
-					itemsPerPage={itemsPerPage}
-					setItemsPerPage={setItemsPerPage}
-					totalItems={totalItems}
-					totalPages={totalPages}
-				/>
+				<>
+					<div className="flex items-center justify-end mb-4">
+						<CategoryFilter
+							categoryList={categories}
+							selectedCategory={selectedCategory}
+							setSelectedCategory={setSelectedCategory}
+						/>
+					</div>
+
+					<DataTable
+						columns={columns(() => getAllExpenses({ page: currentPage, limit: itemsPerPage }))}
+						data={expenses}
+						currentPage={currentPage}
+						setCurrentPage={setCurrentPage}
+						itemsPerPage={itemsPerPage}
+						setItemsPerPage={setItemsPerPage}
+						totalItems={totalItems}
+						totalPages={totalPages}
+					/>
+				</>
 			)}
 		</div>
 	)

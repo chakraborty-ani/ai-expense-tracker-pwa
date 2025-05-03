@@ -2,7 +2,7 @@ import { axiosGet } from "@/lib/axios"
 
 type PropsType = {
 	userId: string
-	params?: Record<string, string | number>
+	params?: Record<string, string | number | undefined>
 }
 
 const getAllExpensesByUserId = async ({ userId, params }: PropsType): Promise<any> => {
