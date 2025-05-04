@@ -4,7 +4,6 @@ import dayjs from "@/lib/dayjs-wrapper"
 import { ColumnDef } from "@tanstack/react-table"
 
 // COMPONENTS
-import { DataTableColumnHeader } from "@/components/data-tables/reusable-components/column-header"
 import ActionButtons from "./action-buttons"
 
 // TYPES
@@ -28,15 +27,17 @@ export const columns = (refetchExpenses: () => Promise<void>): ColumnDef<Expense
 		},
 		header: "Amount",
 	},
-	{
-		accessorKey: "createdAt",
-		cell: ({ row }) => dayjs(row.original.createdAt).local().format("DD/MM/YYYY"),
-		header: ({ column }) => <DataTableColumnHeader column={column} title="Created At" />,
-	},
+	// {
+	// 	accessorKey: "createdAt",
+	// 	cell: ({ row }) => dayjs(row.original.createdAt).local().format("DD/MM/YYYY"),
+	// 	header: "Created At",
+	// 	// header: ({ column }) => <DataTableColumnHeader column={column} title="Created At" />,
+	// },
 	{
 		accessorKey: "updatedAt",
 		cell: ({ row }) => dayjs(row.original.updatedAt).local().format("DD/MM/YYYY"),
-		header: ({ column }) => <DataTableColumnHeader column={column} title="Updated At" />,
+		header: "Updated At",
+		// header: ({ column }) => <DataTableColumnHeader column={column} title="Updated At" />,
 	},
 	{
 		id: "actions",
