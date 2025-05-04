@@ -1,11 +1,11 @@
 "use client"
 
+import { zodResolver } from "@hookform/resolvers/zod"
+import { isNil, omitBy } from "lodash"
 import { useState } from "react"
+import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { omitBy, isNil } from "lodash"
 
 // COMPONENTS
 import {
@@ -26,14 +26,13 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal } from "lucide-react"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 
 // APIS
 import deleteExpenseRecord from "@/api/delete/delete-expense-record"
 import updateExpenseRecord from "@/api/patch/update-expense-record"
 
 // TYPES
+import EditExpenseModal from "./edit-expense-modal"
 import type { ExpenseRecordType } from "./expenses-types"
 type ActionButtonsProps = {
 	expense: ExpenseRecordType
@@ -171,56 +170,13 @@ const ActionButtons = ({ expense, refetchExpenses }: ActionButtonsProps) => {
 			</AlertDialog>
 
 			{/* EDIT MODAL */}
-			<AlertDialog open={openEditModal || isEditLoading} onOpenChange={setOpenEditModal}>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Edit Expense</AlertDialogTitle>
-						<AlertDialogDescription>Update the expense details below.</AlertDialogDescription>
-					</AlertDialogHeader>
-
-					<Form {...form}>
-						<form onSubmit={form.handleSubmit(handleEditExpense)} className="space-y-8">
-							{/* DESCRIPTION */}
-							<FormField
-								control={form.control}
-								name="description"
-								render={({ field }) => (
-									<FormItem className="mb-4">
-										<FormLabel>Description</FormLabel>
-										<FormControl>
-											<Input {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							{/* AMOUNT */}
-							<FormField
-								control={form.control}
-								name="amount"
-								render={({ field }) => (
-									<FormItem className="mb-4">
-										<FormLabel>Amount (₹)</FormLabel>
-										<FormControl>
-											<Input {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							{/* FOOTER */}
-							<AlertDialogFooter>
-								<AlertDialogCancel disabled={isEditLoading}>Cancel</AlertDialogCancel>
-								<Button type="submit" disabled={isEditLoading}>
-									{isEditLoading ? "Saving..." : "Save Changes"}
-								</Button>
-							</AlertDialogFooter>
-						</form>
-					</Form>
-				</AlertDialogContent>
-			</AlertDialog>
+			<EditExpenseModal 
+				form={form}
+				isEditLoading={isEditLoading}
+				openEditModal={openEditModal}
+				handleEditExpense={handleEditExpense}
+				setOpenEditModal={setOpenEditModal}
+			/>
 		</>
 	)
 }

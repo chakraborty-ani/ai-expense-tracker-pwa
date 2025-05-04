@@ -6,6 +6,7 @@ import { toast } from "sonner"
 
 // COMPONENTS
 import SectionLoader from "@/components/loaders/section-loader"
+import CategoryFilter from "./category-filter"
 import { columns } from "./columns"
 import { DataTable } from "./data-table"
 
@@ -15,12 +16,12 @@ import getExpensesCategories from "@/api/get/get-expenses-categories"
 
 // TYPES
 import type { ExpensesData } from "./expenses-types"
-import CategoryFilter from "./category-filter"
 
 type ExpenseApiParams = {
 	page: number
 	limit: number
 	categoryId?: string
+	orderBy?: "asc" | "desc"
 }
 
 type Category = {
@@ -45,13 +46,13 @@ const ExpensesPage = () => {
 
 	// FUNCTION --> GET ALL EXPENSES BY USER ID
 	const getAllExpenses = useCallback(
-		async ({ page, limit, categoryId }: ExpenseApiParams) => {
+		async ({ page, limit, categoryId, orderBy = "desc" }: ExpenseApiParams) => {
 			try {
 				setLoading(true)
 
 				const res = await getAllExpensesByUserId({
 					userId: currentUserDetails?.id,
-					params: { page, limit, categoryId },
+					params: { page, limit, categoryId, orderBy },
 				})
 
 				if (res.status === 200) {

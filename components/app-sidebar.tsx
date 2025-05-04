@@ -1,7 +1,6 @@
 "use client"
 
 import {
-	IconAdjustments,
 	IconChartLine,
 	IconDashboard,
 	IconInnerShadowTop,
@@ -44,11 +43,11 @@ const data = {
 			url: "#",
 			icon: IconChartLine,
 		},
-		{
-			title: "Budget",
-			url: "#",
-			icon: IconAdjustments,
-		},
+		// {
+		// 	title: "Budget",
+		// 	url: "#",
+		// 	icon: IconAdjustments,
+		// },
 	],
 }
 
