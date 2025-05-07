@@ -15,18 +15,13 @@ import getAllExpensesByUserId from "@/api/get/get-all-expenses-by-user-id"
 import getExpensesCategories from "@/api/get/get-expenses-categories"
 
 // TYPES
-import type { ExpensesData } from "./expenses-types"
+import type { Category, ExpensesData } from "./expenses-types"
 
 type ExpenseApiParams = {
 	page: number
 	limit: number
 	categoryId?: string
 	orderBy?: "asc" | "desc"
-}
-
-type Category = {
-	label: string
-	value: string
 }
 
 const ExpensesPage = () => {
@@ -147,7 +142,10 @@ const ExpensesPage = () => {
 					</div>
 
 					<DataTable
-						columns={columns(() => getAllExpenses({ page: currentPage, limit: itemsPerPage }))}
+						columns={columns(
+							() => getAllExpenses({ page: currentPage, limit: itemsPerPage }),
+							categories
+						)}
 						data={expenses}
 						currentPage={currentPage}
 						setCurrentPage={setCurrentPage}

@@ -8,3 +8,8 @@ export type ExpenseRecordType = {
 }
 
 export type ExpensesData = ExpenseRecordType[] | []
+
+export type Category = {
+    value: string
+    label: string
+}
