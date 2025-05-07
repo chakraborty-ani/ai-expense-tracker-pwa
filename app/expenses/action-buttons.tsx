@@ -33,19 +33,21 @@ import updateExpenseRecord from "@/api/patch/update-expense-record"
 
 // TYPES
 import EditExpenseModal from "./edit-expense-modal"
-import type { ExpenseRecordType } from "./expenses-types"
+import type { Category, ExpenseRecordType } from "./expenses-types"
 type ActionButtonsProps = {
 	expense: ExpenseRecordType
 	refetchExpenses: () => Promise<void>
+	categories: Category[]
 }
 
 // FORM VALIDATION SCHEMA
 const formValidationSchema = z.object({
 	description: z.string().min(1, "Description is required"),
 	amount: z.string().min(1, "Amount is required"),
+	categoryId: z.string().min(1, "Category is required"),
 })
 
-const ActionButtons = ({ expense, refetchExpenses }: ActionButtonsProps) => {
+const ActionButtons = ({ expense, refetchExpenses, categories }: ActionButtonsProps) => {
 	const [openDropdown, setOpenDropdown] = useState<boolean>(false)
 	const [openDeleteAlert, setOpenDeleteAlert] = useState<boolean>(false)
 	const [openEditModal, setOpenEditModal] = useState<boolean>(false)
@@ -57,6 +59,7 @@ const ActionButtons = ({ expense, refetchExpenses }: ActionButtonsProps) => {
 		defaultValues: {
 			description: expense.description,
 			amount: expense.amount.toString(),
+			categoryId: categories.find(cat => cat.label === expense.category.name)?.value,
 		},
 	})
 
@@ -91,6 +94,7 @@ const ActionButtons = ({ expense, refetchExpenses }: ActionButtonsProps) => {
 				{
 					description: form.formState.dirtyFields.description ? data.description : undefined,
 					amount: form.formState.dirtyFields.amount ? parseFloat(data.amount) : undefined,
+					categoryId: form.formState.dirtyFields.categoryId ? data.categoryId : undefined,
 				},
 				isNil
 			),
@@ -130,6 +134,8 @@ const ActionButtons = ({ expense, refetchExpenses }: ActionButtonsProps) => {
 							form.reset({
 								description: expense.description,
 								amount: expense.amount.toString(),
+								categoryId: categories.find(cat => cat.label === expense.category.name)
+									?.value,
 							})
 							setOpenDropdown(false)
 							setOpenEditModal(true)
@@ -170,12 +176,13 @@ const ActionButtons = ({ expense, refetchExpenses }: ActionButtonsProps) => {
 			</AlertDialog>
 
 			{/* EDIT MODAL */}
-			<EditExpenseModal 
+			<EditExpenseModal
 				form={form}
 				isEditLoading={isEditLoading}
 				openEditModal={openEditModal}
 				handleEditExpense={handleEditExpense}
 				setOpenEditModal={setOpenEditModal}
+				categories={categories}
 			/>
 		</>
 	)

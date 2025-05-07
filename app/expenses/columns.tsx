@@ -7,9 +7,12 @@ import { ColumnDef } from "@tanstack/react-table"
 import ActionButtons from "./action-buttons"
 
 // TYPES
-import type { ExpenseRecordType } from "./expenses-types"
+import type { Category, ExpenseRecordType } from "./expenses-types"
 
-export const columns = (refetchExpenses: () => Promise<void>): ColumnDef<ExpenseRecordType>[] => [
+export const columns = (
+	refetchExpenses: () => Promise<void>,
+	categories: Category[]
+): ColumnDef<ExpenseRecordType>[] => [
 	{
 		accessorKey: "category.name",
 		header: "Category",
@@ -43,7 +46,9 @@ export const columns = (refetchExpenses: () => Promise<void>): ColumnDef<Expense
 		id: "actions",
 		cell: ({ row }) => {
 			const expense = row.original
-			return <ActionButtons expense={expense} refetchExpenses={refetchExpenses} />
+			return (
+				<ActionButtons expense={expense} refetchExpenses={refetchExpenses} categories={categories} />
+			)
 		},
 	},
 ]

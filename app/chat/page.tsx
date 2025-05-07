@@ -1,9 +1,10 @@
 "use client"
 
+import { useAppSelector } from "@/hooks/redux-hooks"
 import dayjs from "@/lib/dayjs-wrapper"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { isNil, omitBy } from "lodash"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -21,9 +22,12 @@ import EditExpenseModal from "../expenses/edit-expense-modal"
 import { useSocket } from "@/hooks/use-socket"
 
 // APIS
+import getExpensesCategories from "@/api/get/get-expenses-categories"
 import updateExpenseRecord from "@/api/patch/update-expense-record"
 
 // TYPES
+import { Category } from "../expenses/expenses-types"
+
 type UserMessage = {
 	id: number
 	message: string
@@ -64,11 +68,15 @@ type SocketError = {
 const formValidationSchema = z.object({
 	description: z.string().min(1, "Description is required"),
 	amount: z.string().min(1, "Amount is required"),
+	categoryId: z.string().min(1, "Category is required"),
 })
 
 const ChatPage = () => {
 	// REF FOR SCROLLING TO BOTTOM
 	const chatContainerRef = useRef<HTMLDivElement>(null)
+
+	// REDUX STATE
+	const { currentUserDetails } = useAppSelector(state => state.user)
 
 	// STATE
 	const [input, setInput] = useState<string>("")
@@ -76,6 +84,8 @@ const ChatPage = () => {
 	const [isEditLoading, setIsEditLoading] = useState<boolean>(false)
 	const [openEditModal, setOpenEditModal] = useState<boolean>(false)
 	const [selectedMessage, setSelectedMessage] = useState<ExpenseData>()
+	const [loadingCategories, setLoadingCategories] = useState<boolean>(true)
+	const [categories, setCategories] = useState<Category[]>([])
 
 	// FORM
 	const form = useForm<z.infer<typeof formValidationSchema>>({
@@ -83,6 +93,7 @@ const ChatPage = () => {
 		defaultValues: {
 			description: "",
 			amount: "",
+			categoryId: "",
 		},
 	})
 
@@ -157,6 +168,7 @@ const ChatPage = () => {
 				{
 					description: data.description || undefined,
 					amount: data.amount ? parseFloat(data.amount) : undefined,
+					categoryId: data.categoryId || undefined,
 				},
 				isNil
 			),
@@ -176,6 +188,9 @@ const ChatPage = () => {
 								...message.message,
 								description: data.description,
 								amount: parseFloat(data.amount),
+								category: {
+									name: categories.find(cat => cat.value === data.categoryId)?.label || "",
+								},
 							},
 						}
 					}
@@ -194,6 +209,42 @@ const ChatPage = () => {
 		setIsEditLoading(false)
 	}
 
+	// FUNCTION --> GET EXPENSES CATEGORIES
+	const fetchExpensesCategories = useCallback(async () => {
+		try {
+			setLoadingCategories(true)
+
+			const res = await getExpensesCategories()
+
+			if (res.status === 200) {
+				setCategories(
+					res.data?.data.map((item: Record<string, string>) => ({
+						label: item.name,
+						value: item.id,
+					})) || []
+				)
+			} else {
+				toast.error("Something went wrong!", {
+					description: res.data?.message,
+				})
+			}
+		} catch (error) {
+			console.error(error)
+			toast.error("Something went wrong!", {
+				description: "Failed to fetch categories",
+			})
+		} finally {
+			setLoadingCategories(false)
+		}
+	}, [])
+
+	// FETCH EXPENSES CATEGORIES WHENEVER USER CHANGES
+	useEffect(() => {
+		if (currentUserDetails?.id) {
+			fetchExpensesCategories()
+		}
+	}, [currentUserDetails?.id, fetchExpensesCategories])
+
 	// EFFECT TO SCROLL TO BOTTOM AFTER MESSAGE UPDATE
 	useEffect(() => {
 		if (chatContainerRef.current) {
@@ -206,6 +257,10 @@ const ChatPage = () => {
 		if (openEditModal) {
 			form.setValue("description", selectedMessage?.description || "")
 			form.setValue("amount", selectedMessage?.amount.toString() || "")
+			form.setValue(
+				"categoryId",
+				categories.find(cat => cat.label === selectedMessage?.category.name)?.value || ""
+			)
 		}
 	}, [openEditModal, form, selectedMessage?.description, selectedMessage?.amount])
 
@@ -294,11 +349,13 @@ const ChatPage = () => {
 
 					{/* EDIT MODAL */}
 					<EditExpenseModal
+						loadingCategories={loadingCategories}
 						isEditLoading={isEditLoading}
 						openEditModal={openEditModal}
 						handleEditExpense={handleEditExpense}
 						setOpenEditModal={setOpenEditModal}
 						form={form}
+						categories={categories}
 					/>
 				</>
 			) : (
