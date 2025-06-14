@@ -9,7 +9,7 @@ import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 
 // CONSTANTS
-const NON_AUTHENTICATED_ROUTES = ["/login", "/register"]
+const NON_AUTHENTICATED_ROUTES = ["/login", "/register", "/forgot-password"]
 
 export const MainLayout = ({ children }: { children: React.ReactNode }) => {
 	const pathname = usePathname()

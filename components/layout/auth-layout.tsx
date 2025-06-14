@@ -19,7 +19,7 @@ import { RootState } from "@/store/store"
 import getUserProfile from "@/api/get/get-user-profile"
 
 // CONSTANTS
-const NON_AUTHENTICATED_ROUTES = ["/login", "/register"]
+const NON_AUTHENTICATED_ROUTES = ["/login", "/register", "/forgot-password"]
 
 export const AuthLayout = ({ children }: { children: React.ReactNode }) => {
 	const dispatch = useAppDispatch()

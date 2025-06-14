@@ -1,5 +1,11 @@
 import { FirebaseError } from "firebase/app"
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth"
+import {
+	signInWithEmailAndPassword,
+	createUserWithEmailAndPassword,
+	signInWithPopup,
+	GoogleAuthProvider,
+	sendPasswordResetEmail,
+} from "firebase/auth"
 import { auth } from "./firebase-config"
 
 // TYPES
@@ -26,7 +32,7 @@ const generateErrorMessage = (error: FirebaseError) => {
 export const firebaseLoginWithEmailPassword = async ({ email, password }: FirebaseWithEmailPasswordProps) => {
 	try {
 		const userCredential = await signInWithEmailAndPassword(auth, email, password)
-		
+
 		return userCredential
 	} catch (error) {
 		if (error instanceof FirebaseError) {
@@ -45,12 +51,11 @@ export const firebaseRegisterWithEmailPassword = async ({
 }: FirebaseWithEmailPasswordProps) => {
 	try {
 		const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-		
+
 		return userCredential
 	} catch (error) {
 		if (error instanceof FirebaseError) {
 			console.log("error code: ", error.code)
-		
 			console.log("Login error:", generateErrorMessage(error))
 		} else {
 			console.log("Unexpected error:", error)
@@ -68,8 +73,22 @@ export const firebaseLoginWithGoogle = async () => {
 	} catch (error) {
 		if (error instanceof FirebaseError) {
 			console.log("error code: ", error.code)
-		
 			console.log("Login error:", generateErrorMessage(error))
+		} else {
+			console.log("Unexpected error:", error)
+		}
+	}
+}
+
+// FUNCTIONS -> FORGOT PASSWORD
+export const firebaseForgotPassword = async ({ email }: { email: string }) => {
+	try {
+		await sendPasswordResetEmail(auth, email)
+		console.log("Password reset email sent successfully.")
+	} catch (error) {
+		if (error instanceof FirebaseError) {
+			console.log("error code: ", error.code)
+			console.log("Forgot password error:", generateErrorMessage(error))
 		} else {
 			console.log("Unexpected error:", error)
 		}

@@ -120,7 +120,10 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 											<FormItem>
 												<div className="w-full flex items-center">
 													<FormLabel>Password</FormLabel>
-													<span className="ml-auto inline-block text-sm underline-offset-4 hover:underline cursor-pointer">
+													<span
+														className="ml-auto inline-block text-sm underline-offset-4 hover:underline cursor-pointer"
+														onClick={() => router.push("/forgot-password")}
+													>
 														Forgot your password?
 													</span>
 												</div>
