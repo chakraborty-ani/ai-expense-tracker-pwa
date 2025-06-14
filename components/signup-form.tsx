@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { PasswordInput } from "./ui/password-input"
 
 // UTILS
 import { firebaseLoginWithGoogle, firebaseRegisterWithEmailPassword } from "@/lib/firebase/firebase-login"
@@ -170,7 +171,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
 										<FormItem>
 											<FormLabel>Password</FormLabel>
 											<FormControl>
-												<Input type="password" {...field} />
+												<PasswordInput {...field} />
 											</FormControl>
 											<FormMessage />
 										</FormItem>
