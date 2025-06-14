@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { PasswordInput } from "./ui/password-input"
 
 // UTILS
 import { firebaseLoginWithEmailPassword, firebaseLoginWithGoogle } from "@/lib/firebase/firebase-login"
@@ -49,17 +50,13 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 	const onSubmit = async (data: z.infer<typeof LOGIN_FORM_SCEHMA>) => {
 		setIsLoading(true)
 
-		try {
-			const firebaseResponse = await firebaseLoginWithEmailPassword({
-				email: data.email,
-				password: data.password,
-			})
+		const firebaseResponse = await firebaseLoginWithEmailPassword({
+			email: data.email,
+			password: data.password,
+		})
 
-			if (firebaseResponse) {
-				router.push("/")
-			}
-		} catch (error) {
-			console.error("Login Error:", error)
+		if (firebaseResponse) {
+			router.push("/")
 		}
 
 		setIsLoading(false)
@@ -69,15 +66,10 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 	const handleGoogleLogin = async () => {
 		setIsLoadingGoogle(true)
 
-		try {
-			// Register with Firebase
-			const firebaseResponse = await firebaseLoginWithGoogle()
+		const firebaseResponse = await firebaseLoginWithGoogle()
 
-			if (firebaseResponse) {
-				router.push("/")
-			}
-		} catch (error) {
-			console.error("Google Login Error:", error)
+		if (firebaseResponse) {
+			router.push("/")
 		}
 
 		setIsLoadingGoogle(false)
@@ -120,12 +112,15 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 											<FormItem>
 												<div className="w-full flex items-center">
 													<FormLabel>Password</FormLabel>
-													<span className="ml-auto inline-block text-sm underline-offset-4 hover:underline cursor-pointer">
+													<span
+														className="ml-auto inline-block text-sm underline-offset-4 hover:underline cursor-pointer"
+														onClick={() => router.push("/forgot-password")}
+													>
 														Forgot your password?
 													</span>
 												</div>
 												<FormControl>
-													<Input type="password" {...field} />
+													<PasswordInput {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
