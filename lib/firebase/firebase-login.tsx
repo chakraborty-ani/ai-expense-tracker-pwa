@@ -8,6 +8,9 @@ import {
 } from "firebase/auth"
 import { auth } from "./firebase-config"
 
+// COMPONENTS
+import { toast } from "sonner"
+
 // TYPES
 type FirebaseWithEmailPasswordProps = {
 	email: string
@@ -38,8 +41,14 @@ export const firebaseLoginWithEmailPassword = async ({ email, password }: Fireba
 		if (error instanceof FirebaseError) {
 			console.log("error code: ", error.code)
 			console.log("Login error:", generateErrorMessage(error))
+			toast.error(generateErrorMessage(error), {
+				description: "Please check your email and password.",
+			})
 		} else {
 			console.log("Unexpected error:", error)
+			toast.error("Something went wrong", {
+				description: "An unexpected error occurred while logging in.",
+			})
 		}
 	}
 }
@@ -57,8 +66,14 @@ export const firebaseRegisterWithEmailPassword = async ({
 		if (error instanceof FirebaseError) {
 			console.log("error code: ", error.code)
 			console.log("Login error:", generateErrorMessage(error))
+			toast.error(generateErrorMessage(error), {
+				description: "Please try again or use a different login method.",
+			})
 		} else {
 			console.log("Unexpected error:", error)
+			toast.error("Something went wrong", {
+				description: "An unexpected error occurred while registering.",
+			})
 		}
 	}
 }
@@ -74,8 +89,14 @@ export const firebaseLoginWithGoogle = async () => {
 		if (error instanceof FirebaseError) {
 			console.log("error code: ", error.code)
 			console.log("Login error:", generateErrorMessage(error))
+			toast.error(generateErrorMessage(error), {
+				description: "Please try again or use a different login method.",
+			})
 		} else {
 			console.log("Unexpected error:", error)
+			toast.error("Something went wrong", {
+				description: "An unexpected error occurred while logging in with Google.",
+			})
 		}
 	}
 }
@@ -84,13 +105,19 @@ export const firebaseLoginWithGoogle = async () => {
 export const firebaseForgotPassword = async ({ email }: { email: string }) => {
 	try {
 		await sendPasswordResetEmail(auth, email)
-		console.log("Password reset email sent successfully.")
+		toast.success("Password reset link sent to your email.")
 	} catch (error) {
 		if (error instanceof FirebaseError) {
 			console.log("error code: ", error.code)
 			console.log("Forgot password error:", generateErrorMessage(error))
+			toast.error(generateErrorMessage(error), {
+				description: "Please check your email and try again.",
+			})
 		} else {
 			console.log("Unexpected error:", error)
+			toast.error("Something went wrong", {
+				description: "An unexpected error occurred while sending the reset link.",
+			})
 		}
 	}
 }

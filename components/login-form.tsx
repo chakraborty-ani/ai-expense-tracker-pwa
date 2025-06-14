@@ -49,17 +49,13 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 	const onSubmit = async (data: z.infer<typeof LOGIN_FORM_SCEHMA>) => {
 		setIsLoading(true)
 
-		try {
-			const firebaseResponse = await firebaseLoginWithEmailPassword({
-				email: data.email,
-				password: data.password,
-			})
+		const firebaseResponse = await firebaseLoginWithEmailPassword({
+			email: data.email,
+			password: data.password,
+		})
 
-			if (firebaseResponse) {
-				router.push("/")
-			}
-		} catch (error) {
-			console.error("Login Error:", error)
+		if (firebaseResponse) {
+			router.push("/")
 		}
 
 		setIsLoading(false)
@@ -69,15 +65,10 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 	const handleGoogleLogin = async () => {
 		setIsLoadingGoogle(true)
 
-		try {
-			// Register with Firebase
-			const firebaseResponse = await firebaseLoginWithGoogle()
+		const firebaseResponse = await firebaseLoginWithGoogle()
 
-			if (firebaseResponse) {
-				router.push("/")
-			}
-		} catch (error) {
-			console.error("Google Login Error:", error)
+		if (firebaseResponse) {
+			router.push("/")
 		}
 
 		setIsLoadingGoogle(false)

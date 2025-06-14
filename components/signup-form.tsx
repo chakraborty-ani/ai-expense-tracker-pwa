@@ -51,62 +51,54 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
 	const onSubmit = async (data: z.infer<typeof SIGNUP_FORM_SCHEMA>) => {
 		setIsLoading(true)
 
-		try {
-			// Register with Firebase
-			const firebaseResponse = await firebaseRegisterWithEmailPassword({
+		const firebaseResponse = await firebaseRegisterWithEmailPassword({
+			email: data.email,
+			password: data.password,
+		})
+
+		if (firebaseResponse) {
+			// Send user details to backend
+			const registerUserRes = await registerNewUserApi({
 				email: data.email,
-				password: data.password,
+				firstname: data.firstname,
+				lastname: data.lastname,
+				firebaseId: firebaseResponse.user.uid,
 			})
 
-			if (firebaseResponse) {
-				// Send user details to backend
-				const registerUserRes = await registerNewUserApi({
-					email: data.email,
-					firstname: data.firstname,
-					lastname: data.lastname,
-					firebaseId: firebaseResponse.user.uid,
-				})
-
-				if (registerUserRes.status === 201) {
-					router.push("/")
-					console.log("User registered successfully:", registerUserRes.data)
-				} else {
-					console.log("Error registering user:", registerUserRes.data.message)
-				}
+			if (registerUserRes.status === 201) {
+				router.push("/")
+				console.log("User registered successfully:", registerUserRes.data)
+			} else {
+				console.log("Error registering user:", registerUserRes.data.message)
 			}
-		} catch (error) {
-			console.error("Signup Error:", error)
-		} finally {
-			setIsLoading(false)
 		}
+
+		setIsLoading(false)
 	}
 
 	// GOOGLE LOGIN HANDLER
 	const handleGoogleLogin = async () => {
 		setIsLoadingGoogle(true)
 
-		try {
-			// Register with Firebase
-			const firebaseResponse = await firebaseLoginWithGoogle()
+		const firebaseResponse = await firebaseLoginWithGoogle()
 
-			if (firebaseResponse) {
-				// Send user details to backend
-				const registerUserRes = await registerNewUserApi({
-					email: firebaseResponse.email ?? "",
-					firstname: firebaseResponse.displayName ? firebaseResponse.displayName.split(" ")[0] : "",
-					lastname: firebaseResponse.displayName ? firebaseResponse.displayName.split(" ").slice(1).join(" ") : "",
-					firebaseId: firebaseResponse.uid,
-				})
+		if (firebaseResponse) {
+			// Send user details to backend
+			const registerUserRes = await registerNewUserApi({
+				email: firebaseResponse.email ?? "",
+				firstname: firebaseResponse.displayName ? firebaseResponse.displayName.split(" ")[0] : "",
+				lastname: firebaseResponse.displayName
+					? firebaseResponse.displayName.split(" ").slice(1).join(" ")
+					: "",
+				firebaseId: firebaseResponse.uid,
+			})
 
-				if (registerUserRes.status === 201) {
-					router.push("/")
-					console.log("User registered successfully:", registerUserRes.data)
-				} else {
-					console.log("Error registering user:", registerUserRes.data.message)
-				}
+			if (registerUserRes.status === 201) {
+				router.push("/")
+				console.log("User registered successfully:", registerUserRes.data)
+			} else {
+				console.log("Error registering user:", registerUserRes.data.message)
 			}
-		} catch (error) {
-			console.error("Google Login Error:", error)
 		}
 
 		setIsLoadingGoogle(false)
@@ -192,7 +184,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
 							</div>
 						</form>
 					</Form>
-					
+
 					{/* GOOGLE LOGIN BUTTON */}
 					<div className="flex flex-col gap-3 mt-3">
 						<div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">

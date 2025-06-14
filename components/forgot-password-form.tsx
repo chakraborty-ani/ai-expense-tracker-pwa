@@ -40,12 +40,8 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
 	const onSubmit = async (data: z.infer<typeof FORGOT_PASSWORD_FORM_SCEHMA>) => {
 		setIsLoading(true)
 
-		try {
-			await firebaseForgotPassword({ email: data.email })
-			router.push("/login")
-		} catch (error) {
-			console.error("Password Reset Link Sending Error:", error)
-		}
+		await firebaseForgotPassword({ email: data.email })
+		router.push("/login")
 
 		setIsLoading(false)
 	}
