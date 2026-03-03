@@ -22,10 +22,37 @@ type CustomErrorResponse = {
 	}
 }
 
-const handleError = (error: unknown, url: string): CustomErrorResponse => {
-	console.log("error at url: ", url)
-	console.log(error)
+// Retry only on network errors or 5xx — never on 4xx (client errors are not retryable)
+const isRetryable = (error: AxiosError): boolean => {
+	if (!error.response) return true // network error / timeout
+	return error.response.status >= 500
+}
 
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+const withRetry = async <T>(
+	fn: () => Promise<T>,
+	retries = 2,
+	delayMs = 500
+): Promise<T> => {
+	let lastError: unknown
+	for (let attempt = 0; attempt <= retries; attempt++) {
+		try {
+			return await fn()
+		} catch (error) {
+			lastError = error
+			const axiosError = error as AxiosError
+			if (attempt < retries && isRetryable(axiosError)) {
+				await sleep(delayMs * (attempt + 1))
+				continue
+			}
+			break
+		}
+	}
+	throw lastError
+}
+
+const handleError = (error: unknown): CustomErrorResponse => {
 	const axiosError = error as AxiosError<{ message?: string }>
 
 	return {
@@ -43,15 +70,17 @@ export const axiosGet = async <T>({
 }: GetParams): Promise<AxiosResponse<T> | CustomErrorResponse> => {
 	const token = await getToken()
 	try {
-		return await axios.get<T>(url, {
-			headers: {
-				...headers,
-				Authorization: token ? token : undefined,
-			},
-			params,
-		})
+		return await withRetry(() =>
+			axios.get<T>(url, {
+				headers: {
+					...headers,
+					Authorization: token ? token : undefined,
+				},
+				params,
+			})
+		)
 	} catch (error) {
-		return handleError(error, url)
+		return handleError(error)
 	}
 }
 
@@ -62,14 +91,16 @@ export const axiosPost = async <T>({
 }: OtherParams): Promise<AxiosResponse<T> | CustomErrorResponse> => {
 	const token = await getToken()
 	try {
-		return await axios.post<T>(url, data, {
-			headers: {
-				...headers,
-				Authorization: token ? token : undefined,
-			},
-		})
+		return await withRetry(() =>
+			axios.post<T>(url, data, {
+				headers: {
+					...headers,
+					Authorization: token ? token : undefined,
+				},
+			})
+		)
 	} catch (error) {
-		return handleError(error, url)
+		return handleError(error)
 	}
 }
 
@@ -80,14 +111,16 @@ export const axiosPut = async <T>({
 }: OtherParams): Promise<AxiosResponse<T> | CustomErrorResponse> => {
 	const token = await getToken()
 	try {
-		return await axios.put<T>(url, data, {
-			headers: {
-				...headers,
-				Authorization: token ? token : undefined,
-			},
-		})
+		return await withRetry(() =>
+			axios.put<T>(url, data, {
+				headers: {
+					...headers,
+					Authorization: token ? token : undefined,
+				},
+			})
+		)
 	} catch (error) {
-		return handleError(error, url)
+		return handleError(error)
 	}
 }
 
@@ -98,14 +131,16 @@ export const axiosPatch = async <T>({
 }: OtherParams): Promise<AxiosResponse<T> | CustomErrorResponse> => {
 	const token = await getToken()
 	try {
-		return await axios.patch<T>(url, data, {
-			headers: {
-				...headers,
-				Authorization: token ? token : undefined,
-			},
-		})
+		return await withRetry(() =>
+			axios.patch<T>(url, data, {
+				headers: {
+					...headers,
+					Authorization: token ? token : undefined,
+				},
+			})
+		)
 	} catch (error) {
-		return handleError(error, url)
+		return handleError(error)
 	}
 }
 
@@ -116,14 +151,16 @@ export const axiosDelete = async <T>({
 }: OtherParams): Promise<AxiosResponse<T> | CustomErrorResponse> => {
 	const token = await getToken()
 	try {
-		return await axios.delete<T>(url, {
-			data,
-			headers: {
-				...headers,
-				Authorization: token ? token : undefined,
-			},
-		})
+		return await withRetry(() =>
+			axios.delete<T>(url, {
+				data,
+				headers: {
+					...headers,
+					Authorization: token ? token : undefined,
+				},
+			})
+		)
 	} catch (error) {
-		return handleError(error, url)
+		return handleError(error)
 	}
 }

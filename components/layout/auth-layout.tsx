@@ -19,7 +19,7 @@ import { RootState } from "@/store/store"
 import getUserProfile from "@/api/get/get-user-profile"
 
 // CONSTANTS
-const NON_AUTHENTICATED_ROUTES = ["/login", "/register", "/forgot-password"]
+import { NON_AUTHENTICATED_ROUTES } from "@/lib/constants"
 
 export const AuthLayout = ({ children }: { children: React.ReactNode }) => {
 	const dispatch = useAppDispatch()
@@ -52,26 +52,33 @@ export const AuthLayout = ({ children }: { children: React.ReactNode }) => {
 	}, [dispatch, pathname, router])
 
 	useEffect(() => {
-		if (isAuthChecked) {
-			;(async () => {
-				if (currentUserToken) {
-					const response = await getUserProfile()
-					if (response.status === 200) {
-						dispatch(updateUser(response.data.data))
-					} else {
-						dispatch(updateUser(null))
-						if (!NON_AUTHENTICATED_ROUTES.includes(pathname)) {
-							router.replace("/login")
-						}
-					}
+		if (!isAuthChecked) return
+
+		let cancelled = false
+
+		;(async () => {
+			if (currentUserToken) {
+				const response = await getUserProfile()
+				if (cancelled) return
+				if (response.status === 200) {
+					dispatch(updateUser(response.data.data))
 				} else {
 					dispatch(updateUser(null))
 					if (!NON_AUTHENTICATED_ROUTES.includes(pathname)) {
 						router.replace("/login")
 					}
 				}
-				dispatch(updateLoading(false))
-			})()
+			} else {
+				dispatch(updateUser(null))
+				if (!NON_AUTHENTICATED_ROUTES.includes(pathname)) {
+					router.replace("/login")
+				}
+			}
+			if (!cancelled) dispatch(updateLoading(false))
+		})()
+
+		return () => {
+			cancelled = true
 		}
 	}, [currentUserToken, isAuthChecked, dispatch, pathname, router])
 

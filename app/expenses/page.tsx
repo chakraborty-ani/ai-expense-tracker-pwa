@@ -1,7 +1,7 @@
 "use client"
 
 import { useAppSelector } from "@/hooks/redux-hooks"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 
 // COMPONENTS
@@ -12,10 +12,12 @@ import { DataTable } from "./data-table"
 
 // APIS
 import getAllExpensesByUserId from "@/api/get/get-all-expenses-by-user-id"
-import getExpensesCategories from "@/api/get/get-expenses-categories"
+
+// HOOKS
+import { useCategories } from "@/hooks/use-categories"
 
 // TYPES
-import type { Category, ExpensesData } from "./expenses-types"
+import type { ExpensesData } from "./expenses-types"
 
 type ExpenseApiParams = {
 	page: number
@@ -28,16 +30,26 @@ const ExpensesPage = () => {
 	// REDUX STATE
 	const { currentUserDetails } = useAppSelector(state => state.user)
 
+	// CATEGORIES from shared cache
+	const { categories, loadingCategories } = useCategories()
+
 	// STATE
 	const [loading, setLoading] = useState<boolean>(true)
 	const [expenses, setExpenses] = useState<ExpensesData>([])
-	const [loadingCategories, setLoadingCategories] = useState<boolean>(true)
-	const [categories, setCategories] = useState<Category[]>([])
 	const [currentPage, setCurrentPage] = useState<number>(1)
 	const [itemsPerPage, setItemsPerPage] = useState<number>(10)
 	const [totalItems, setTotalItems] = useState<number>(0)
 	const [totalPages, setTotalPages] = useState<number>(0)
 	const [selectedCategory, setSelectedCategory] = useState<string>("")
+	const [debouncedCategory, setDebouncedCategory] = useState<string>("")
+
+	// DEBOUNCE CATEGORY FILTER — prevents a request on every keystroke/click
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setDebouncedCategory(selectedCategory)
+		}, 300)
+		return () => clearTimeout(timer)
+	}, [selectedCategory])
 
 	// FUNCTION --> GET ALL EXPENSES BY USER ID
 	const getAllExpenses = useCallback(
@@ -46,7 +58,7 @@ const ExpensesPage = () => {
 				setLoading(true)
 
 				const res = await getAllExpensesByUserId({
-					userId: currentUserDetails?.id,
+					userId: currentUserDetails?.id ?? "",
 					params: { page, limit, categoryId, orderBy },
 				})
 
@@ -73,48 +85,18 @@ const ExpensesPage = () => {
 		[currentUserDetails?.id]
 	)
 
-	// FUNCTION --> GET EXPENSES CATEGORIES
-	const fetchExpensesCategories = useCallback(async () => {
-		try {
-			setLoadingCategories(true)
-
-			const res = await getExpensesCategories()
-
-			if (res.status === 200) {
-				setCategories(
-					res.data?.data.map((item: Record<string, string>) => ({
-						label: item.name,
-						value: item.id,
-					})) || []
-				)
-			} else {
-				toast.error("Something went wrong!", {
-					description: res.data?.message,
-				})
-			}
-		} catch (error) {
-			console.error(error)
-			toast.error("Something went wrong!", {
-				description: "Failed to fetch categories",
-			})
-		} finally {
-			setLoadingCategories(false)
-		}
-	}, [])
-
-	// FETCH EXPENSES WHENEVER PAGE, LIMIT, OR USER CHANGES
+	// FETCH EXPENSES WHENEVER PAGE, LIMIT, USER, OR DEBOUNCED CATEGORY CHANGES
 	useEffect(() => {
 		if (currentUserDetails?.id) {
-			getAllExpenses({ page: currentPage, limit: itemsPerPage, categoryId: selectedCategory })
+			getAllExpenses({ page: currentPage, limit: itemsPerPage, categoryId: debouncedCategory })
 		}
-	}, [currentUserDetails?.id, currentPage, itemsPerPage, selectedCategory, getAllExpenses])
+	}, [currentUserDetails?.id, currentPage, itemsPerPage, debouncedCategory, getAllExpenses])
 
-	// FETCH EXPENSES CATEGORIES WHENEVER USER CHANGES
-	useEffect(() => {
-		if (currentUserDetails?.id) {
-			fetchExpensesCategories()
-		}
-	}, [currentUserDetails?.id, fetchExpensesCategories])
+	// MEMOIZE COLUMNS — prevents ColumnDef array from being recreated on every render
+	const tableColumns = useMemo(
+		() => columns(() => getAllExpenses({ page: currentPage, limit: itemsPerPage }), categories),
+		[getAllExpenses, currentPage, itemsPerPage, categories]
+	)
 
 	return (
 		<div className="px-6 py-6">
@@ -142,10 +124,7 @@ const ExpensesPage = () => {
 					</div>
 
 					<DataTable
-						columns={columns(
-							() => getAllExpenses({ page: currentPage, limit: itemsPerPage }),
-							categories
-						)}
+						columns={tableColumns}
 						data={expenses}
 						currentPage={currentPage}
 						setCurrentPage={setCurrentPage}

@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/layout/theme-provider"
 import { AuthLayout } from "@/components/layout/auth-layout"
 import { ReduxProvider } from "@/components/layout/redux-provider"
 import { MainLayout } from "@/components/layout/main-layout"
+import { ErrorBoundary } from "@/components/layout/error-boundary"
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -46,12 +47,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
 					<ReduxProvider>
-						<AuthLayout>
-							<MainLayout>
-								{children}
-								<Toaster richColors />
-							</MainLayout>
-						</AuthLayout>
+						<ErrorBoundary>
+							<AuthLayout>
+								<MainLayout>
+									{children}
+									<Toaster richColors />
+								</MainLayout>
+							</AuthLayout>
+						</ErrorBoundary>
 					</ReduxProvider>
 				</ThemeProvider>
 			</body>

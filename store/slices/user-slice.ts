@@ -1,8 +1,16 @@
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { createSlice } from "@reduxjs/toolkit"
 
+export interface UserDetails {
+	id: string
+	firstname?: string
+	lastname?: string
+	email?: string
+	[key: string]: unknown
+}
+
 export interface UserType {
-	currentUserDetails: any | null
+	currentUserDetails: UserDetails | null
 	currentUserToken: string | null
 	userDataloading: boolean
 }
@@ -17,7 +25,7 @@ export const userSlice = createSlice({
 	name: "currentUserDetails",
 	initialState,
 	reducers: {
-		updateUser: (state, action: PayloadAction<any | null>) => {
+		updateUser: (state, action: PayloadAction<UserDetails | null>) => {
 			state.currentUserDetails = action.payload
 		},
 		updateCurrentUserToken: (state, action: PayloadAction<string | null>) => {
