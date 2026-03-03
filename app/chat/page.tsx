@@ -1,10 +1,9 @@
 "use client"
 
-import { useAppSelector } from "@/hooks/redux-hooks"
 import dayjs from "@/lib/dayjs-wrapper"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { isNil, omitBy } from "lodash"
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -74,9 +73,6 @@ const formValidationSchema = z.object({
 const ChatPage = () => {
 	// REF FOR SCROLLING TO BOTTOM
 	const chatContainerRef = useRef<HTMLDivElement>(null)
-
-	// REDUX STATE
-	const { currentUserDetails } = useAppSelector(state => state.user)
 
 	// CATEGORIES from shared cache
 	const { categories, loadingCategories } = useCategories()
@@ -227,7 +223,7 @@ const ChatPage = () => {
 				categories.find((cat: Category) => cat.label === selectedMessage?.category.name)?.value || ""
 			)
 		}
-	}, [openEditModal, form, selectedMessage?.description, selectedMessage?.amount])
+	}, [openEditModal, form, selectedMessage?.description, selectedMessage?.amount, selectedMessage?.category.name, categories])
 
 	// FUNCTION TO HANDLE EDIT ICON CLICK
 	const handleOnEditIconClick = ({ message }: { message: ExpenseData }) => {
