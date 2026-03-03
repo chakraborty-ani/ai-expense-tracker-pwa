@@ -10,7 +10,7 @@ import { toast } from "sonner"
 import { z } from "zod"
 
 // ICONS
-import { IconEdit, IconMessages, IconSend2 } from "@tabler/icons-react"
+import { IconEdit, IconMessages, IconSend2, IconWifiOff } from "@tabler/icons-react"
 
 // COMPONENTS
 import SectionLoader from "@/components/loaders/section-loader"
@@ -20,9 +20,9 @@ import EditExpenseModal from "../expenses/edit-expense-modal"
 
 // HOOKS
 import { useSocket } from "@/hooks/use-socket"
+import { useCategories } from "@/hooks/use-categories"
 
 // APIS
-import getExpensesCategories from "@/api/get/get-expenses-categories"
 import updateExpenseRecord from "@/api/patch/update-expense-record"
 
 // TYPES
@@ -78,14 +78,15 @@ const ChatPage = () => {
 	// REDUX STATE
 	const { currentUserDetails } = useAppSelector(state => state.user)
 
+	// CATEGORIES from shared cache
+	const { categories, loadingCategories } = useCategories()
+
 	// STATE
 	const [input, setInput] = useState<string>("")
 	const [messages, setMessages] = useState<ChatMessage[]>([])
 	const [isEditLoading, setIsEditLoading] = useState<boolean>(false)
 	const [openEditModal, setOpenEditModal] = useState<boolean>(false)
 	const [selectedMessage, setSelectedMessage] = useState<ExpenseData>()
-	const [loadingCategories, setLoadingCategories] = useState<boolean>(true)
-	const [categories, setCategories] = useState<Category[]>([])
 
 	// FORM
 	const form = useForm<z.infer<typeof formValidationSchema>>({
@@ -98,7 +99,7 @@ const ChatPage = () => {
 	})
 
 	// SOCKET CONNECTION
-	const { isConnected, socket } = useSocket({
+	const { isConnected, connectionError, retry, socket } = useSocket({
 		// ON EXPENSE ADDED
 		onExpenseAdded: (data: ExpenseData) => {
 			setMessages(prev => [
@@ -189,7 +190,7 @@ const ChatPage = () => {
 								description: data.description,
 								amount: parseFloat(data.amount),
 								category: {
-									name: categories.find(cat => cat.value === data.categoryId)?.label || "",
+									name: categories.find((cat: Category) => cat.value === data.categoryId)?.label || "",
 								},
 							},
 						}
@@ -209,42 +210,6 @@ const ChatPage = () => {
 		setIsEditLoading(false)
 	}
 
-	// FUNCTION --> GET EXPENSES CATEGORIES
-	const fetchExpensesCategories = useCallback(async () => {
-		try {
-			setLoadingCategories(true)
-
-			const res = await getExpensesCategories()
-
-			if (res.status === 200) {
-				setCategories(
-					res.data?.data.map((item: Record<string, string>) => ({
-						label: item.name,
-						value: item.id,
-					})) || []
-				)
-			} else {
-				toast.error("Something went wrong!", {
-					description: res.data?.message,
-				})
-			}
-		} catch (error) {
-			console.error(error)
-			toast.error("Something went wrong!", {
-				description: "Failed to fetch categories",
-			})
-		} finally {
-			setLoadingCategories(false)
-		}
-	}, [])
-
-	// FETCH EXPENSES CATEGORIES WHENEVER USER CHANGES
-	useEffect(() => {
-		if (currentUserDetails?.id) {
-			fetchExpensesCategories()
-		}
-	}, [currentUserDetails?.id, fetchExpensesCategories])
-
 	// EFFECT TO SCROLL TO BOTTOM AFTER MESSAGE UPDATE
 	useEffect(() => {
 		if (chatContainerRef.current) {
@@ -259,7 +224,7 @@ const ChatPage = () => {
 			form.setValue("amount", selectedMessage?.amount.toString() || "")
 			form.setValue(
 				"categoryId",
-				categories.find(cat => cat.label === selectedMessage?.category.name)?.value || ""
+				categories.find((cat: Category) => cat.label === selectedMessage?.category.name)?.value || ""
 			)
 		}
 	}, [openEditModal, form, selectedMessage?.description, selectedMessage?.amount])
@@ -287,17 +252,17 @@ const ChatPage = () => {
 								</p>
 							</div>
 						) : (
-							messages.map((message, index) =>
+							messages.map(message =>
 								message.sender === "user" ? (
 									<div
-										key={index}
+										key={message.id}
 										className="p-2 rounded-md bg-blue-500 text-white self-end max-w-[70%]"
 									>
 										{message.message}
 									</div>
 								) : (
 									<div
-										key={index}
+										key={message.id}
 										className="p-3 rounded-md bg-muted text-primary self-start min-w-[250px] max-w-[75%] shadow-sm"
 									>
 										<div className="text-sm font-medium">
@@ -358,6 +323,15 @@ const ChatPage = () => {
 						categories={categories}
 					/>
 				</>
+			) : connectionError ? (
+				<div className="flex flex-col items-center justify-center h-full gap-4">
+					<IconWifiOff size={48} className="text-muted-foreground" />
+					<p className="text-sm font-medium">Unable to connect to the chat server</p>
+					<p className="text-xs text-muted-foreground">Check your connection and try again</p>
+					<Button variant="outline" onClick={retry}>
+						Retry
+					</Button>
+				</div>
 			) : (
 				<SectionLoader />
 			)}

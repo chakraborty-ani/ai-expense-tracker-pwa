@@ -21,52 +21,72 @@ export const useSocket = (options?: UseSocketOptions) => {
 	// SOCKET REF
 	const socketRef = useRef<Socket<SocketEvents> | null>(null)
 
+	// Keep options in a ref so callbacks are always current without reconnecting
+	const optionsRef = useRef(options)
+	useEffect(() => {
+		optionsRef.current = options
+	})
+
 	// REDUX STATES
 	const { currentUserToken } = useAppSelector(state => state.user)
 
 	// STATES
 	const [isConnected, setIsConnected] = useState(false)
+	const [connectionError, setConnectionError] = useState(false)
+	const [retryKey, setRetryKey] = useState(0)
 
-    // CONNECT TO SOCKET
+	// CONNECT TO SOCKET
 	useEffect(() => {
 		if (!currentUserToken) return
 
-		const connectSocket = async () => {
-			const socket: Socket<SocketEvents> = io(SOCKET_URL, {
-				transports: ["websocket"],
-				auth: { token: currentUserToken },
-			})
+		setConnectionError(false)
 
-			socketRef.current = socket
+		const socket: Socket<SocketEvents> = io(SOCKET_URL, {
+			transports: ["websocket"],
+			auth: { token: currentUserToken },
+		})
 
-			// SOCKET CONNECT
-			socket.on("connect", () => {
-				setIsConnected(true)
-				// console.log("Connected to socket server")
-			})
+		socketRef.current = socket
 
-			// SOCKET EXPENSE ADDED
-			if (options?.onExpenseAdded) {
-				socket.on("expenseAdded", options.onExpenseAdded)
-			}
+		// SOCKET CONNECT
+		socket.on("connect", () => {
+			setIsConnected(true)
+			setConnectionError(false)
+		})
 
-			// SOCKET ERROR
-			if (options?.onError) {
-				socket.on("error", options.onError)
-			}
-		}
+		// SOCKET DISCONNECT
+		socket.on("disconnect", () => {
+			setIsConnected(false)
+		})
 
-		connectSocket()
+		// SOCKET CONNECTION ERROR
+		socket.on("connect_error", () => {
+			setIsConnected(false)
+			setConnectionError(true)
+		})
+
+		// SOCKET EXPENSE ADDED — delegate to current options ref to avoid stale closure
+		socket.on("expenseAdded", data => {
+			optionsRef.current?.onExpenseAdded?.(data)
+		})
+
+		// SOCKET ERROR — delegate to current options ref
+		socket.on("error", error => {
+			optionsRef.current?.onError?.(error)
+		})
 
 		return () => {
-			socketRef.current?.disconnect()
+			socket.disconnect()
 			socketRef.current = null
+			setIsConnected(false)
 		}
-	}, [])
+	}, [currentUserToken, retryKey])
 
-    // RETURN SOCKET AND CONNECTION STATUS
+	// RETURN SOCKET, CONNECTION STATUS, ERROR STATE, AND RETRY FUNCTION
 	return {
 		socket: socketRef.current,
 		isConnected,
+		connectionError,
+		retry: () => setRetryKey(k => k + 1),
 	}
 }

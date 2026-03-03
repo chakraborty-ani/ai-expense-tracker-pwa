@@ -16,6 +16,7 @@ import { PasswordInput } from "./ui/password-input"
 // UTILS
 import { firebaseLoginWithGoogle, firebaseRegisterWithEmailPassword } from "@/lib/firebase/firebase-login"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 // API
 import registerNewUserApi from "@/api/post/register-new-user-api"
@@ -68,9 +69,10 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
 
 			if (registerUserRes.status === 201) {
 				router.push("/")
-				console.log("User registered successfully:", registerUserRes.data)
 			} else {
-				console.log("Error registering user:", registerUserRes.data.message)
+				toast.error("Registration failed", {
+					description: registerUserRes.data?.message || "Unable to create your account. Please try again.",
+				})
 			}
 		}
 
@@ -96,9 +98,10 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
 
 			if (registerUserRes.status === 201) {
 				router.push("/")
-				console.log("User registered successfully:", registerUserRes.data)
 			} else {
-				console.log("Error registering user:", registerUserRes.data.message)
+				toast.error("Registration failed", {
+					description: registerUserRes.data?.message || "Unable to create your account. Please try again.",
+				})
 			}
 		}
 

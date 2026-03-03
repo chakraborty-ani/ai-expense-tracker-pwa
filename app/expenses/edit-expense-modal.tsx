@@ -1,3 +1,5 @@
+import { UseFormReturn } from "react-hook-form"
+
 // COMPONENTS
 import ModalLoader from "@/components/loaders/modal-loader"
 import {
@@ -17,13 +19,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 // TYPES
 import { Category } from "./expenses-types"
 
+export type EditExpenseFormValues = {
+	description: string
+	amount: string
+	categoryId: string
+}
+
 type EditExpenseModalProps = {
 	loadingCategories?: boolean
 	openEditModal: boolean
 	setOpenEditModal: (open: boolean) => void
 	isEditLoading: boolean
-	handleEditExpense: (data: { description: string; amount: string; categoryId: string }) => Promise<void>
-	form: any
+	handleEditExpense: (data: EditExpenseFormValues) => Promise<void>
+	form: UseFormReturn<EditExpenseFormValues>
 	categories: Category[]
 }
 
