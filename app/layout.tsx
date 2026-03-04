@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import { DM_Sans } from "next/font/google"
+import { Manrope } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
 
@@ -10,8 +10,8 @@ import { ReduxProvider } from "@/components/layout/redux-provider"
 import { MainLayout } from "@/components/layout/main-layout"
 import { ErrorBoundary } from "@/components/layout/error-boundary"
 
-const dmSans = DM_Sans({
-	variable: "--font-dm-sans",
+const manrope = Manrope({
+	variable: "--font-manrope",
 	subsets: ["latin"],
 })
 
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<html lang="en" suppressHydrationWarning>
-			<body className={`${dmSans.variable} antialiased`}>
+			<body className={`${manrope.variable} antialiased`}>
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
 					<ReduxProvider>
 						<ErrorBoundary>
