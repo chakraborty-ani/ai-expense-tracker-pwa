@@ -7,11 +7,13 @@ interface SocketEvents {
 	sendMessage: (message: string) => void
 	expenseAdded: (data: any) => void
 	error: (error: string) => void
+	messageError: (data: { message: string }) => void
 }
 
 interface UseSocketOptions {
 	onExpenseAdded?: (data: any) => void
 	onError?: (error: string) => void
+	onMessageError?: (data: { message: string }) => void
 }
 
 // SOCKET URL
@@ -73,6 +75,11 @@ export const useSocket = (options?: UseSocketOptions) => {
 		// SOCKET ERROR — delegate to current options ref
 		socket.on("error", error => {
 			optionsRef.current?.onError?.(error)
+		})
+
+		// SOCKET MESSAGE ERROR — delegate to current options ref
+		socket.on("messageError", data => {
+			optionsRef.current?.onMessageError?.(data)
 		})
 
 		return () => {

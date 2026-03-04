@@ -47,7 +47,13 @@ type BotMessage = {
 	sender: "bot"
 }
 
-type ChatMessage = UserMessage | BotMessage
+type ErrorMessage = {
+	id: number
+	message: string
+	sender: "error"
+}
+
+type ChatMessage = UserMessage | BotMessage | ErrorMessage
 
 type ExpenseData = {
 	id: string
@@ -112,6 +118,17 @@ const ChatPage = () => {
 			toast.error("Something went wrong!", {
 				description: typeof error === "string" ? error : error?.message,
 			})
+		},
+		// ON MESSAGE ERROR
+		onMessageError: (data: { message: string }) => {
+			setMessages(prev => [
+				...prev,
+				{
+					id: prev.length + 1,
+					message: data.message,
+					sender: "error",
+				},
+			])
 		},
 	})
 
@@ -252,7 +269,14 @@ const ChatPage = () => {
 								message.sender === "user" ? (
 									<div
 										key={message.id}
-										className="p-2 rounded-md bg-blue-500 text-white self-end max-w-[70%]"
+										className="p-2 rounded-md bg-primary text-white self-end max-w-[70%] text-sm"
+									>
+										{message.message}
+									</div>
+								) : message.sender === "error" ? (
+									<div
+										key={message.id}
+										className="p-2 rounded-md bg-destructive/10 text-destructive self-start max-w-[70%] text-sm"
 									>
 										{message.message}
 									</div>
@@ -262,27 +286,27 @@ const ChatPage = () => {
 										className="p-3 rounded-md bg-muted text-primary self-start min-w-[250px] max-w-[75%] shadow-sm"
 									>
 										<div className="text-sm font-medium">
-											{message?.message?.category?.name}
+											{message.message.category.name}
 										</div>
 										<div className="text-sm text-muted-foreground mt-1">
-											{message?.message?.description}
+											{message.message.description}
 										</div>
 										<div className="text-xl font-semibold mt-2">
-											₹{message?.message?.amount}
+											&#8377;{message.message.amount}
 										</div>
 										<div className="flex items-center justify-between mt-2">
 											<div className="text-xs text-muted-foreground">
-												{dayjs(message?.message?.createdAt)
+												{dayjs(message.message.createdAt)
 													.local()
 													.format("MMMM DD, YYYY")}{" "}
-												•{" "}
-												{dayjs(message?.message?.createdAt).local().format("hh:mm A")}
+												&bull;{" "}
+												{dayjs(message.message.createdAt).local().format("hh:mm A")}
 											</div>
 											<IconEdit
 												size={20}
 												className="text-muted-foreground cursor-pointer"
 												onClick={() =>
-													handleOnEditIconClick({ message: message?.message })
+													handleOnEditIconClick({ message: message.message })
 												}
 											/>
 										</div>
@@ -300,7 +324,7 @@ const ChatPage = () => {
 						<Input
 							type="text"
 							value={input}
-							placeholder="e.g., Bought coffee for ₹150 at Starbucks"
+							placeholder="e.g., Bought coffee for &#8377;150 at Starbucks"
 							onChange={e => setInput(e.target.value)}
 						/>
 						<Button type="submit" className="cursor-pointer">
