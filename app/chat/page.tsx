@@ -242,8 +242,8 @@ const ChatPage = () => {
 					>
 						{messages.length === 0 ? (
 							<div className="flex flex-col items-center justify-center h-full gap-4">
-								<IconMessages size={"20%"} color="var(--muted)" />
-								<p className="text-muted font-semibold">
+								<IconMessages size={"20%"} className="text-neutral-400 dark:text-neutral-800" />
+								<p className="text-neutral-500 dark:text-neutral-700 font-semibold">
 									No expenses logged yet. Start by entering your first expense!
 								</p>
 							</div>
